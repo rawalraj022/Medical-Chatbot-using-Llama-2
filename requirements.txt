@@ -14,3 +14,5 @@ ipywidgets>=8.0.0
 langchain-community
 langchain-huggingface
 
+-e . # This is the path to the setup.py file of the current project
+
