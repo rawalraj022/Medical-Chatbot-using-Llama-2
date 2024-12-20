@@ -178,14 +178,18 @@ def index():            # define a function called index that will be executed w
     return render_template('chat.html')    # render the template 'chat.html' and return it to the user when they visit the root URL of the application.
 
 
-@app.route("/get", methods=["GET", "POST"])
-def chat():
-    msg = request.form["msg"]
-    input = msg
-    print(input)
-    result=qa({"query": input})
-    print("Response : ", result["result"])
-    return str(result["result"])
+# Now I need to create a route for the chatbot to get the response from the user and give the response to the user. 
+    # I will create a route called "/get" and this route will accept the POST request from the user and 
+        # get the message from the user and give the response to the user.
+
+@app.route("/get", methods=["GET", "POST"])  # create a route for the chatbot to get the response from the user and give the response to the user and pass the URL path to the route decorator and the URL path is "/get" and the route will accept the POST request from the user.
+def chat():                               # define a function called chat that will be executed when the route "/get" is triggered and the function will get the message from the user and give the response to the user.
+    msg = request.form["msg"]          # get the message from the user and store it in the variable called "msg" and request.form["msg"] is used to get the value of the "msg" field from the form data.
+    input = msg                       # store the message from the user in the variable called "input"
+    print(input)                     # print the message from the user
+    result=qa({"query": input})     # get the response from the user and store it in the variable called "result" and qa is the QA chain object and input is the message from the user and "query" is the key in the dictionary that contains the query
+    print("Response : ", result["result"])  # print the response to the user and result["result"] is the key in the dictionary that contains the response to the user 
+    return str(result["result"])    # return the response to the user as a string when the route "/get" is triggered.
 
 
 ## Now I will initialize the Flask application and run it on the local server.
