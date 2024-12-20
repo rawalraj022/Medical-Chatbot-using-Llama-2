@@ -178,6 +178,16 @@ def index():            # define a function called index that will be executed w
     return render_template('chat.html')    # render the template 'chat.html' and return it to the user when they visit the root URL of the application.
 
 
+@app.route("/get", methods=["GET", "POST"])
+def chat():
+    msg = request.form["msg"]
+    input = msg
+    print(input)
+    result=qa({"query": input})
+    print("Response : ", result["result"])
+    return str(result["result"])
+
+
 ## Now I will initialize the Flask application and run it on the local server.
     # This code will (execute) run the Flask application on the local server with the host as " 
 
