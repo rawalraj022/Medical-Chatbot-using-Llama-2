@@ -4,25 +4,29 @@
 
 # To create a Flask application, we need to import the Flask class from the flask package and other necessary classes.
 from flask import Flask, render_template, jsonify, request        # import Flask, render_template, jsonify, request from flask package to create a Flask application.
-from src.helper import download_hugging_face_embeddings         # import download_hugging_face_embeddings function from src.helper file to download the embeddings from Hugging Face model hub.
-
-# To interact with the Pinecone API, we need to import the following classes from the pinecone package.
-import os                      # import os package to access the environment variables  and to interact with the operating system . 
-import pinecone                # import pinecone package to interact with the Pinecone API . 
-from langchain_huggingface import HuggingFaceEmbeddings   # import HuggingFaceEmbeddings from langchain_huggingface package for downloading the embeddings from Hugging Face model hub .
-from pinecone import Pinecone, ServerlessSpec              # import Pinecone and ServerlessSpec from pinecone package and ServerlessSpec is a class that represents a serverless Pinecone vector database
-
-# To create retrieval QA chain, we need to import the following classes from langchain package.
-from langchain import PromptTemplate             # so first thing we need prompt templates
-from langchain.chains import RetrievalQA         # funciton called chains and import retrieval Question answer
-from langchain.prompts import PromptTemplate            # function is prompts and import PromptTemplate
-from langchain_community.llms import CTransformers              # function is llms and import CTransformers  
 
 # For accessing the environment variables, we need to import the load_dotenv function from the dotenv package.
 from dotenv import load_dotenv  # import load_dotenv function from dotenv package to load the environment variables from the .env file.
 
+# To interact with the Pinecone API, we need to import the following classes from the pinecone package.
+import os                      # import os package to access the environment variables  and to interact with the operating system . 
+from pinecone import Pinecone, ServerlessSpec              # import Pinecone package to interact with the Pinecone API and ServerlessSpec from pinecone package and ServerlessSpec is a class that represents a serverless Pinecone vector database
+from langchain_huggingface import HuggingFaceEmbeddings   # import HuggingFaceEmbeddings from langchain_huggingface package for downloading the embeddings from Hugging Face model hub .
+
+# Convert Pinecone index to Langchain vector store and import the following classes from langchain.vectorstores package.
+from langchain_community.vectorstores import Pinecone as LangchainPinecone   # import Pinecone from langchain.vectorstores package to convert Pinecone index to Langchain vector store
+
+# To create retrieval QA chain, we need to import the following classes from langchain package.
+
+from langchain.chains import RetrievalQA         # funciton called chains and import retrieval Question answer
+from langchain_core.prompts import PromptTemplate            # function is prompts and import PromptTemplate
+from langchain_community.llms import CTransformers              # function is llms and import CTransformers  
+
 # import everything from src.prompt file  to use the prompt template for LLM and generate the correct answer with the help of LLM.
 from src.prompt import *     # '*' means import everything from src.prompt file to use the prompt template for LLM and generate the correct answer with the help of LLM.
+
+from src.helper import download_hugging_face_embeddings         # import download_hugging_face_embeddings function from src.helper file to download the embeddings from Hugging Face model hub.
+
 
 
 ## ---------- this is the code to create a Flask application that serves as the API for the retrieval QA chain.-------------
@@ -51,6 +55,8 @@ api_key = os.getenv('PINECONE_API_KEY')   # get the value of PINECONE_API_KEY
 if not api_key:                # if PINECONE_API_KEY is not found in environment variables  
     raise ValueError("PINECONE_API_KEY not found in environment variables")  # raise an error
 
+# Initialize embeddings
+embeddings = HuggingFaceEmbeddings()  # HuggingFaceEmbeddings is a class that represents Hugging Face embeddings and embeddings is the HuggingFaceEmbeddings object
 
 ## Now we need to initialize the Pinecone with the API key. 
 # 3. Initialize Pinecone with new syntax 
@@ -72,6 +78,17 @@ try:
         )
     index = pc.Index(index_name)    # store it in a variable called index and index_name is the name of the index and pc is the Pinecone object
     
+    
+    # 5. Convert Pinecone index to Langchain vector store
+
+    # Convert Pinecone index to Langchain vector store and store it in a variable called vectorstore
+    vectorstore = LangchainPinecone(   # LangchainPinecone is a class that represents a Langchain vector store and vectorstore is the LangchainPinecone object
+        index=index,         # index is the Pinecone index and index is the default value
+        embedding=embeddings, # embedding_function is a function that returns the embeddings of the query and embeddings.embed_query is the function that returns the embeddings of the query
+        text_key="text"    # text_key is a string that specifies the key in the document dictionary that contains the text and 'text' is the default value
+    )
+    
+
 except Exception as e:     # if there is any error 
     print(f"Pinecone initialization error: {str(e)}")     # print the error
     raise                  # raise the error
@@ -89,7 +106,7 @@ except Exception as e:     # if there is any error
 # Load the existing index and vectors from the Pinecone index
 
 ## Load the existing index and vectors from the Pinecone index
-index_name = "medical-chatbot"      # name of the index
+index_name = os.getenv("PINECONE_INDEX_NAME")      # get the value of the index name from the environment variables and store it in the variable called "index_name"
 index = pc.Index(index_name)        # loading the existing index and vectors from the Pinecone index and store it in the variable called "index"
 
 
@@ -129,12 +146,6 @@ llm=CTransformers(model="model/llama-2-7b-chat.ggmlv3.q4_0.bin",    # CTransform
 
 ## We will create our retrieval question answering object which is from langchain library
 
-# Convert Pinecone index to Langchain vector store
-vectorstore = Pinecone(  # Pinecone is a class that represents a Pinecone vector database and vectorstore is the Pinecone object 
-    index,                   # index is vector store variable 
-    embeddings.embed_query,  # embeddings.embed_query is a function that returns the embeddings of the query
-    "text"  # text key in metadata to use as the text content
-)
 
 # Create QA chain with vectorstore
 qa = RetrievalQA.from_chain_type(   # RetrievalQA is a class that represents a retrieval question answering chain and from_chain_type is a function that creates a QA chain from a chain type
