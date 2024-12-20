@@ -55,7 +55,7 @@ try:
 
     # 4. Setup index
     index_name = "medical-chatbot"      # name of the index
-    if index_name not in pc.list_indexes().names():    # check if index exists 
+    if index_name not in pc.list_indexes().names():    # check if index exists or not
         pc.create_index(            # create index
             name=index_name,        # name of the index
             dimension=384,          # dimension of embeddings = 384 because we are using all-MiniLM-L6-v2
