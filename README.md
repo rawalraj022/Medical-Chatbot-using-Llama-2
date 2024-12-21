@@ -4,6 +4,20 @@
 
 The development of the Medical Chatbot using Llama 2 signifies a significant advancement in AI-driven healthcare solutions. By providing accurate and timely medical information, the chatbot aims to empower users in navigating their health concerns while improving overall accessibility to healthcare services . 
 
+## Demo Screenshots
+<!-- Basic image -->
+![Screenshot](images/screenshot.png)
+
+<!-- Image with alt text and title -->
+![Chat Interface](images/interface.png "Medical Chatbot Interface")
+
+<!-- Image with relative path -->
+![Architecture](./images/architecture.png)
+
+<!-- Image with absolute URL -->
+![Example](https://example.com/images/medical-bot.png)
+
+
 ## Steps to run the project 
 
 ### Clone the repository 
