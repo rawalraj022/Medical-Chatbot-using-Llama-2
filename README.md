@@ -15,7 +15,7 @@ The development of the Medical Chatbot using Llama 2 signifies a significant adv
 ![Architecture](./images/architecture.png)
 
 <!-- Image with absolute URL -->
-![Example](https://example.com/images/medical-bot.png)
+![URL](./images/medical-bot.png)
 
 
 ## Steps to run the project 
